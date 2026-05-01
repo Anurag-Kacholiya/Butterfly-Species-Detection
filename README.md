@@ -1,105 +1,131 @@
-# 🦋 Butterfly Species Classification & Identifier
+# 🦋 Butterfly Species Identifier
 
-An interactive Streamlit dashboard and robust deep learning pipeline for fine-grained butterfly species classification across 100 species.
+Upload a field photo → get the **species name**, **IUCN conservation status**, and a **Wikipedia summary** — instantly, in your browser.
 
-**The Problem:** Snap a photo on a forest trek → get the species name, conservation status, and a fun fact.
-**The Solution:** A lightweight, highly efficient transfer-learning model deployed via Streamlit, providing Top-3 predictions with rich biological context (IUCN status, Wikipedia summaries, and fun facts).
-
----
-
-## ✨ Features
-
-- **Interactive Streamlit Dashboard:** Upload an image (JPG/PNG/WEBP) and instantly receive the Top-3 species predictions with confidence scores.
-- **Rich Species Metadata:** Displays real-time IUCN Conservation Status badges, Wikipedia summaries, and curated fun facts for the predicted species.
-- **Zero-Shot Inference (CLIP):** Built and evaluated a prompt-ensembled zero-shot pipeline using `openai/clip-vit-base-patch32`.
-- **High-Efficiency Fine-Tuning (EfficientNet):** Achieved **96.60% Test Top-1 Accuracy** using a strategic two-phase fine-tuning approach on `efficientnet_b0`, requiring only 31% of the model's parameters to be updated.
-- **Model Explainability:** Includes Grad-CAM heatmaps to visualize where the model "looks" (validating it looks at the wings/thorax, not the background) and UMAP projections to visualize the learned feature manifold.
+Built for SMAI Assignment T7.4 using the [100-species Kaggle dataset](https://www.kaggle.com/datasets/gpiosenka/butterfly-images40-species).
 
 ---
 
-## 🧠 Architectures & Methodology
+## Results at a Glance
 
-This project explores two distinct paradigms for image classification:
+| Model | Strategy | Test Top-1 | Test Top-3 | Macro F1 |
+|---|---|:---:|:---:|:---:|
+| Author Keras H5 (baseline) | Pre-trained, no extra training | 97.60% | 99.60% | — |
+| **EfficientNet-B0 ✅** | Linear probe → fine-tune last block | **96.60%** | **99.40%** | **96.45%** |
+| CLIP ViT-B/32 | Zero-shot, 5-prompt ensemble | 28.20% | 44.20% | 24.57% |
 
-### 1. Zero-Shot Learning (CLIP)
-- **Model:** `openai/clip-vit-base-patch32`
-- **Approach:** Used pre-trained vision-language contrastive representations. We ensemble multiple text prompts (e.g., `"A photo of a {species}, a type of butterfly."`, `"A close-up field photo of a {species} butterfly."`) to create robust text anchors for each of the 100 classes.
-- **Pros:** No training required, highly generalized.
-
-### 2. Supervised Fine-Tuning (EfficientNet-B0)
-- **Model:** `efficientnet_b0` (via PyTorch Image Models - `timm`)
-- **Backbone Initialization:** ImageNet pre-trained weights.
-- **Data Augmentation:** Random resized crops, heavy horizontal flipping (leveraging biological bilateral symmetry), mild vertical flipping, color jittering (for varying field lighting), and rotation.
-
-#### 🔬 The Two-Phase Fine-Tuning Strategy
-Instead of blindly fine-tuning the entire model (which is prone to overfitting and catastrophic forgetting of low-level features), we used a structured two-phase approach:
-
-1. **Phase 1: Linear Probe (Warm-up)**
-   - **Action:** Freeze the entire convolutional backbone. Train *only* the new linear classification head (100 classes).
-   - **Duration:** 5 epochs.
-   - **Trainable Params:** ~0.13M parameters.
-   - **Result:** Reached ~89.8% validation accuracy. This proved that generic ImageNet features are deeply transferable to butterfly morphology. It also warms up the random classifier weights.
-
-2. **Phase 2: Fine-Tune Last Block**
-   - **Action:** Unfreeze the deep, semantic features of the last MBConv block (`blocks.6`) along with the warmed-up head. 
-   - **Duration:** 10 epochs with a 10x smaller learning rate.
-   - **Trainable Params:** ~1.27M parameters (just 31% of the total model).
-   - **Result:** Reached **96.60% Test Top-1 Accuracy** and **99.40% Test Top-3 Accuracy**.
-
-#### 📊 Ablation Study
-We conducted an ablation study to validate this choice against a "Full Fine-Tune" (unfreezing all 4.14M parameters from scratch):
-
-| Method | Trainable Params | Epochs | Test Top-1 | Test Top-3 | Macro F1 |
-|---|---:|:---:|:---:|:---:|:---:|
-| **Baseline (Author H5)** | 0 | 0 | 97.60% | 99.60% | — |
-| **A — Linear Probe** | 0.13M | 5 | ~89% | — | — |
-| **B — Fine-Tune Last Block ✅** | 1.27M | 5+10 | **96.60%** | **99.40%** | **96.45%** |
-| **C — Full Fine-Tune** | 4.14M | 10 | 96.60% | 99.20% | 96.53% |
-
-**Conclusion:** Unfreezing just the last block (Method B) matches the Top-1 performance of full fine-tuning (Method C) while saving massive compute, reducing parameters by 3.2x, and minimizing validation overfitting. It also slightly improves Top-3 accuracy.
+The deployed app uses the **EfficientNet-B0** model (16 MB `.pth` file).
 
 ---
 
-## 🚀 Running the App Locally
+## Quick Start
 
-### Prerequisites
-Make sure you have Python 3.9+ installed.
+### 1. Clone
 
-1. **Clone the repository:**
-   ```bash
-   git clone <your-repo-url>
-   cd Assignment-3
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the Streamlit Dashboard:**
-   ```bash
-   streamlit run app.py
-   ```
-
-4. **Upload an image!**
-   The app will automatically route to your local browser at `http://localhost:8501`. Drop a field photo of a butterfly to see the predictions.
-
----
-
-## 📂 Repository Structure
-
-```text
-├── app.py                             # Main Streamlit dashboard script
-├── requirements.txt                   # Dependency list
-├── Zero-Shot-CLIP.ipynb               # Jupyter notebook for CLIP zero-shot pipeline
-├── FineTune-EfficientNet.ipynb        # Jupyter notebook for the EfficientNet pipeline
-└── Kaggle_run/
-    ├── efficientnet_butterfly.pth     # Saved PyTorch model weights (Phase 2)
-    ├── class_names.json               # 100-species list
-    └── SMAI_Assignment_3/
-        ├── cached_species_info.json   # Scraped Wikipedia & IUCN metadata
-        └── species_images/            # Reference photos used by the app
+```bash
+git clone https://github.com/Anurag-Kacholiya/Butterfly-Species-Detection.git
+cd Butterfly-Species-Detection
 ```
 
-### Note on Artifacts
-Due to Github size limitations, the `.pth` weights file and cached images might need to be downloaded via Kaggle or Git LFS depending on your setup. The `Kaggle_run` folder contains the output artifacts of the Kaggle notebooks.
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+> Python 3.9+ required. Use a virtual environment:
+> ```bash
+> python -m venv .venv && source .venv/bin/activate   # macOS / Linux
+> python -m venv .venv && .venv\Scripts\activate       # Windows
+> pip install -r requirements.txt
+> ```
+
+### 3. Run the app
+
+```bash
+streamlit run app.py
+```
+
+Opens at **http://localhost:8501** — drop a butterfly photo and see predictions.
+
+---
+
+## Project Structure
+
+```
+Butterfly-Species-Detection/
+│
+├── app.py                  # Streamlit app (entry point)
+├── requirements.txt        # pip dependencies
+├── report.tex              # LaTeX technical report
+│
+├── model/
+│   └── efficientnet_butterfly.pth   # Fine-tuned EfficientNet-B0 weights (16 MB)
+│
+├── data/
+│   ├── class_names.json             # Ordered list of 100 species
+│   ├── species_metadata.json        # Wiki summaries, IUCN status, fun facts
+│   └── species_images/              # Reference photos shown in the UI
+│       └── *.jpg                    # One image per species
+│
+├── notebooks/
+│   ├── 01_efficientnet_finetuning.ipynb   # EfficientNet training pipeline (run on Kaggle)
+│   └── 02_clip_zeroshot.ipynb            # CLIP zero-shot pipeline (run on Kaggle)
+│
+└── results/
+    ├── efficientnet/        # Training curves, confusion matrix, Grad-CAM, UMAP, ablation
+    └── clip/                # Ablation plots, confusion matrix, UMAP, misclassifications
+```
+
+> The raw dataset (`archive/`) is not committed — download from Kaggle:
+> `kaggle datasets download gpiosenka/butterfly-images40-species`
+
+---
+
+## Methodology
+
+### Approach 1 — Zero-Shot CLIP (`02_clip_zeroshot.ipynb`)
+
+Uses `openai/clip-vit-base-patch32` with **no gradient updates**. We ensemble 5 prompt templates per species (e.g. `"A close-up macro shot of a {species} butterfly"`) to create robust text anchors and compare via cosine similarity.
+
+**Result: 28.2% Top-1.** CLIP knows what a butterfly looks like, but cannot distinguish 100 species whose differences live in wing venation details outside its training distribution.
+
+### Approach 2 — Fine-Tuned EfficientNet-B0 (`01_efficientnet_finetuning.ipynb`)
+
+Two-phase transfer learning on `efficientnet_b0` (timm, ImageNet pre-trained):
+
+| Phase | Action | Trainable Params | Epochs | Val Acc |
+|---|---|:---:|:---:|:---:|
+| 1 — Linear Probe | Freeze backbone; train head only | 0.13 M | 5 | ~89.8% |
+| 2 — Last Block Fine-Tune | Unfreeze `blocks.6` + head | 1.27 M (31%) | 10 | ~96.0% |
+
+**Result: 96.6% Top-1, 99.4% Top-3.** Matching full fine-tune accuracy (all 4.14 M params) at 3× lower cost.
+
+Grad-CAM confirms the model focuses on wing patterns and thorax — not the background.
+
+---
+
+## Bugs Fixed vs Original
+
+| Location | Bug | Fix |
+|---|---|---|
+| `app.py` | `st.image(..., width="stretch")` — invalid argument, crashes at runtime | `use_container_width=True` |
+| `app.py` | `st.dataframe(..., width="stretch")` — same issue | `use_container_width=True` |
+| `data/species_metadata.json` | Key `"AMERICAN SNOUT"` didn't match class name `"AMERICAN SNOOT"` | Renamed key |
+| `data/species_metadata.json` | Wiki summary facts were a single run-on string | Each numbered fact now on its own line |
+
+---
+
+## Deployment (Streamlit Community Cloud)
+
+1. Push the repo to GitHub (model weights are ~16 MB, within the 100 MB file limit).
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**.
+3. Set: Repository = `Anurag-Kacholiya/Butterfly-Species-Detection`, Branch = `main`, Main file = `app.py`.
+4. Click **Deploy** — live in ~3 minutes at a `*.streamlit.app` URL.
+
+> If the `.pth` file exceeds GitHub's limit in future, track it with Git LFS:
+> ```bash
+> git lfs install
+> git lfs track "model/*.pth"
+> git add .gitattributes
+> ```

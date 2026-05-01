@@ -1,8 +1,10 @@
 """
 🦋 Butterfly Species Identifier — Streamlit App
 ================================================
-Model   : EfficientNet-B0 (fine-tuned, timm)
-Metadata: cached_species_info.json (wiki + IUCN + fun facts)
+Model   : EfficientNet-B0 (fine-tuned, timm)  — model/efficientnet_butterfly.pth
+Classes : data/class_names.json (100 species)
+Metadata: data/species_metadata.json (wiki + IUCN + fun facts)
+Images  : data/species_images/*.jpg
 """
 
 import json
@@ -26,12 +28,10 @@ st.set_page_config(
 
 # ── Paths ───────────────────────────────────────────────────────────────────────
 BASE_DIR     = Path(__file__).parent
-KAGGLE_DIR   = BASE_DIR / "Kaggle_run"
-META_DIR     = KAGGLE_DIR / "SMAI_Assignment_3"
-MODEL_PATH   = KAGGLE_DIR / "efficientnet_butterfly.pth"
-CLASSES_PATH = KAGGLE_DIR / "class_names.json"
-CACHE_PATH   = META_DIR   / "cached_species_info.json"
-IMG_DIR      = META_DIR   / "species_images"
+DATA_DIR     = BASE_DIR / "data"
+MODEL_PATH   = BASE_DIR / "model" / "efficientnet_butterfly.pth"
+CLASSES_PATH = DATA_DIR / "class_names.json"
+CACHE_PATH   = DATA_DIR / "species_metadata.json"
 
 # ── IUCN badge colours ──────────────────────────────────────────────────────────
 IUCN_META = {
@@ -267,7 +267,7 @@ def get_species_img(species_name: str, meta: dict):
     entry = meta.get(species_name, {})
     img_rel = entry.get("image_url", "")
     if img_rel:
-        candidate = META_DIR / img_rel   # e.g. species_images/adonis.jpg
+        candidate = DATA_DIR / img_rel   # e.g. data/species_images/adonis.jpg
         if candidate.exists():
             try:
                 return Image.open(candidate).convert("RGB")
@@ -357,7 +357,7 @@ with upload_col:
 
     if uploaded:
         user_img = Image.open(uploaded).convert("RGB")
-        st.image(user_img, caption="Uploaded photo", width="stretch")
+        st.image(user_img, caption="Uploaded photo", use_container_width=True)
     else:
         st.markdown("""
         <div class="upload-zone">
@@ -428,8 +428,8 @@ with results_col:
             st.markdown('<div class="section-header" style="font-size:1rem;margin-top:1.2rem;">📖 Wikipedia Summary</div>',
                         unsafe_allow_html=True)
             wiki = meta_entry.get("wiki_summary", "No summary available.")
-            # Show numbered facts as a readable passage
-            st.markdown(f'<div class="info-box">{wiki}</div>', unsafe_allow_html=True)
+            wiki_html = wiki.replace("\n", "<br>")
+            st.markdown(f'<div class="info-box">{wiki_html}</div>', unsafe_allow_html=True)
 
             # Fun facts
             fun_facts = meta_entry.get("fun_facts", [])
@@ -447,7 +447,7 @@ with results_col:
                 st.markdown('<div class="section-header" style="font-size:1rem;">🖼️ Reference Photo</div>',
                             unsafe_allow_html=True)
                 st.image(ref_img, caption=f"{top_species.title()} (reference)",
-                         width="stretch")
+                         use_container_width=True)
             else:
                 st.markdown("*No reference image available.*")
 
@@ -491,5 +491,5 @@ with st.expander("📈 Model Performance & Ablation Study", expanded=False):
         "Test Top-3": ["99.60%", "~95.50%", "99.40%", "99.20%", "44.20%"],
         "Macro F1":   ["~97.50%", "~89.50%", "96.45%", "96.53%", "24.57%"],
     }
-    st.dataframe(ablation_data, hide_index=True, width="stretch")
+    st.dataframe(ablation_data, hide_index=True, use_container_width=True)
     st.caption("✅ = deployed model in this app")

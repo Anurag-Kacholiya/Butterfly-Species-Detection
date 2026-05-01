@@ -60,11 +60,11 @@ Despite ensembling our text prompts, CLIP plateaued at roughly \textbf{30.8\% ac
     \label{fig:training_curves}
 \end{figure*}
 
-Why did it fail? If we look at how CLIP groups images together (using a tool called UMAP to visualize the grouping, as seen in Figure \ref{fig:clip_umap}), the clusters are messy and overlapping. CLIP knows what a ``butterfly'' is, but it doesn't have the specialized microscope needed to look at the exact vein patterns on the wings that separate an Adonis from a Blue Morpho.
+Why did it fail? If we look at how CLIP groups images together (using UMAP~\cite{mcinnes2018umap} to visualize the grouping, as seen in Figure \ref{fig:clip_umap}), the clusters are messy and overlapping. CLIP knows what a ``butterfly'' is, but it doesn't have the specialized microscope needed to look at the exact vein patterns on the wings that separate an Adonis from a Blue Morpho.
 
 
 \section{Approach 2: Strategic Fine-Tuning}
-Since out-of-the-box knowledge wasn't enough, we needed a model that could learn our specific dataset. We took \texttt{EfficientNet-B0}, a very fast and lightweight vision model that already knew basic shapes and edges from ImageNet. 
+Since out-of-the-box knowledge wasn't enough, we needed a model that could learn our specific dataset. We took \texttt{EfficientNet-B0}~\cite{tan2019efficientnet} (via \texttt{timm}~\cite{rw2019timm}), a very fast and lightweight vision model that already knew basic shapes and edges from ImageNet~\cite{deng2009imagenet}. 
 
 Instead of aggressively training the whole model from scratch (Full Fine-Tuning), which can accidentally destroy the model's foundational knowledge, we did it in two gentle phases:
 
@@ -77,7 +77,7 @@ To push past 89\%, we unlocked just the very last block of the model. We let it 
 \subsection{Proving Our Fine-Tuned Model Learned Properly}
 How do we know the model isn't just cheating? For example, what if every Monarch butterfly in our dataset was sitting on a green leaf, and the model just learned to look for green leaves instead of the butterfly?
 
-We used \textbf{Grad-CAM} to generate heatmaps that visualize exactly where the model is ``looking.'' 
+We used \textbf{Grad-CAM}~\cite{selvaraju2017gradcam} to generate heatmaps that visualize exactly where the model is ``looking.'' 
 
 \begin{figure}[H]
     \centering
@@ -88,7 +88,7 @@ We used \textbf{Grad-CAM} to generate heatmaps that visualize exactly where the 
 
 Figure \ref{fig:gradcam} is an incredible validation of our work. The heatmaps perfectly trace the edges of the wings. Even when the model gets a prediction wrong, it's still looking at the right biological location, which is exactly what we want.
 
-Additionally, our feature grouping looks drastically improved compared to CLIP. In Figure \ref{fig:effnet_umap}, we ran UMAP on our fine-tuned EfficientNet. The difference is night and day: the species are now tightly grouped into neat, isolated clusters.
+Additionally, our feature grouping looks drastically improved compared to CLIP. In Figure \ref{fig:effnet_umap}, we ran UMAP~\cite{mcinnes2018umap} on our fine-tuned EfficientNet. The difference is night and day: the species are now tightly grouped into neat, isolated clusters.
 
 \begin{figure}[H]
     \centering
@@ -123,13 +123,25 @@ This project heavily validates that for fine-grained, highly nuanced scientific 
 
 \begin{thebibliography}{9}
 \bibitem{radford2021learning}
-A. Radford \emph{et al.}, ``Learning transferable visual models from natural language supervision,'' in \emph{International Conference on Machine Learning (ICML)}, 2021.
+A. Radford, J. W. Kim, C. Hallacy, A. Ramesh, G. Goh, S. Agarwal, G. Sastry, A. Askell, P. Mishkin, J. Clark, G. Krueger, and I. Sutskever, ``Learning Transferable Visual Models From Natural Language Supervision,'' in \emph{Proc. Int. Conf. Machine Learning (ICML)}, vol. 139, pp. 8748--8763, 2021.
 
 \bibitem{tan2019efficientnet}
-M. Tan and Q. V. Le, ``EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'' in \emph{International Conference on Machine Learning (ICML)}, 2019.
+M. Tan and Q. V. Le, ``EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks,'' in \emph{Proc. Int. Conf. Machine Learning (ICML)}, vol. 97, pp. 6105--6114, 2019.
 
 \bibitem{gpiosenka}
-G. Piosenka, ``Butterfly Image Classification (100 Species),'' Kaggle Dataset, \url{https://www.kaggle.com/datasets/gpiosenka/butterfly-images40-species}.
+G. Piosenka, ``Butterfly \& Moths Image Classification — 100 Species,'' Kaggle Dataset, 2023. [Online]. Available: \url{https://www.kaggle.com/datasets/gpiosenka/butterfly-images40-species}
+
+\bibitem{selvaraju2017gradcam}
+R. R. Selvaraju, M. Cogswell, A. Das, R. Vedantam, D. Parikh, and D. Batra, ``Grad-CAM: Visual Explanations from Deep Networks via Gradient-Based Localization,'' in \emph{Proc. IEEE Int. Conf. Computer Vision (ICCV)}, pp. 618--626, 2017.
+
+\bibitem{mcinnes2018umap}
+L. McInnes, J. Healy, and J. Melville, ``UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction,'' \emph{arXiv preprint arXiv:1802.03426}, 2018.
+
+\bibitem{deng2009imagenet}
+J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, and L. Fei-Fei, ``ImageNet: A Large-Scale Hierarchical Image Database,'' in \emph{Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR)}, pp. 248--255, 2009.
+
+\bibitem{rw2019timm}
+R. Wightman, ``PyTorch Image Models (timm),'' GitHub, 2019. [Online]. Available: \url{https://github.com/huggingface/pytorch-image-models}
 \end{thebibliography}
 
 \appendix
@@ -137,12 +149,11 @@ G. Piosenka, ``Butterfly Image Classification (100 Species),'' Kaggle Dataset, \
 The complete system, including raw Jupyter Notebooks, the ablation pipeline, and the Streamlit deployment structure, is openly accessible.
 
 \begin{itemize}
-    \item \textbf{GitHub Repository:} \url{https://github.com/your-username/Butterfly-Species-Classification} \\
-    \textit{(Please replace 'your-username' with the actual repository path before submission)}
-    
-    \item \textbf{Deployed Web Application:} \url{https://your-app-url.streamlit.app/}
-    
-    \item \textbf{Hugging Face Model Reference (Zero-Shot):} \url{https://huggingface.co/openai/clip-vit-base-patch32}
+    \item \textbf{GitHub Repository:} \url{https://github.com/Anurag-Kacholiya/Butterfly-Species-Detection}
+
+    \item \textbf{Hugging Face CLIP Model (Zero-Shot baseline):} \url{https://huggingface.co/openai/clip-vit-base-patch32}
+
+    \item \textbf{EfficientNet-B0 via timm:} \url{https://github.com/huggingface/pytorch-image-models}
 \end{itemize}
 
 \textbf{Information Retrieval Note:} To ensure the Streamlit application performs inferencing rapidly, Wikipedia summaries, specific IUCN Conservation status mappings, and fun biological facts are strictly pre-cached inside the repository's \texttt{cached\_species\_info.json} rather than generating HTTP traffic at runtime.
