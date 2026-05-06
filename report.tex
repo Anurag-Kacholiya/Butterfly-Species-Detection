@@ -12,12 +12,34 @@
 
 \title{Butterfly Species Identification:\\ Why Strategic Fine-Tuning Beats Zero-Shot Models}
 
-\author{Anurag Kacholiya \\ SMAI Assignment 3}
+\author{
+\begin{tabular}{ccc}
+Anurag Kacholiya & Anurag Kaushal & Srushti Pekamwar \\
+2025202025 & 2025202013 & 2025201066
+\end{tabular}
+}
+
 
 \maketitle
 
 \begin{abstract}
-Identifying butterfly species from photographs is a prototypical Fine-Grained Visual Categorisation (FGVC) challenge: many species are visually near-identical due to biological mimicry, while intra-species variation (sex, wear, pose) adds further difficulty. In this project, we build a full-stack Streamlit web application that classifies 100 butterfly species and exposes IUCN conservation status, Wikipedia summaries, and Grad-CAM heatmaps at inference time. We conduct a systematic ablation comparing three training strategies: (A)~Linear Probe, (B)~Last-Block Fine-Tuning, and (C)~Full Fine-Tuning of EfficientNet-B0~\cite{tan2019efficientnet}, as well as a zero-shot CLIP baseline~\cite{radford2021learning}. The zero-shot CLIP approach achieves only 30.8\% Top-1 accuracy. Linear probing (Strategy A) reaches 92.20\% by training just 1,300 parameters. Unlocking a single convolutional block (Strategy B) with 2.9~M trainable parameters achieves \textbf{97.0\%} Top-1, 99.2\% Top-3, and 96.92\% Macro-F1 — matching the fully fine-tuned model (Strategy C: 5.3~M params, 97.0\% Top-1) at one-half the parameter cost. Grad-CAM analysis confirms the model attends to wing venation patterns rather than background habitat, and a UMAP embedding shows tight, well-separated per-species clusters in the learned feature space.
+Identifying butterfly species from photographs is a classic \textit{Fine-Grained Visual Categorization (FGVC)} problem, where many species exhibit highly similar visual characteristics due to biological mimicry. The task is further complicated by significant intra-species variations such as differences in sex, wing wear, lighting conditions, and pose.
+
+In this project, we develop a full-stack Streamlit-based web application capable of classifying 100 butterfly species while simultaneously providing additional interpretability and ecological information, including IUCN conservation status, Wikipedia summaries, and Grad-CAM visual explanations during inference.
+
+To evaluate model performance systematically, we conduct an extensive ablation study using three transfer-learning strategies on EfficientNet-B0~\cite{tan2019efficientnet}:
+\begin{itemize}
+    \item[(A)] Linear Probing
+    \item[(B)] Last-Block Fine-Tuning
+    \item[(C)] Full Fine-Tuning
+\end{itemize}
+
+We also compare these approaches against a zero-shot CLIP baseline~\cite{radford2021learning}.
+
+Experimental results show that the zero-shot CLIP model achieves only 30.8\% Top-1 accuracy, highlighting the difficulty of the FGVC task. Strategy A (Linear Probing) attains 92.20\% Top-1 accuracy while training only 1,300 parameters. Strategy B (Last-Block Fine-Tuning), using 2.9 million trainable parameters, achieves the best trade-off between efficiency and performance with \textbf{97.0\%} Top-1 accuracy, 99.2\% Top-3 accuracy, and 96.92\% Macro-F1 score. Notably, this matches the performance of the fully fine-tuned model (Strategy C: 5.3 million parameters, 97.0\% Top-1 accuracy) while requiring nearly half the trainable parameters.
+
+Furthermore, Grad-CAM visualizations demonstrate that the model primarily focuses on biologically meaningful wing venation and pattern structures rather than background habitat information. A UMAP-based feature space analysis also reveals compact and well-separated clusters for individual butterfly species, indicating strong discriminative representation learning.
+
 \end{abstract}
 
 \section{The Fine-Grained Classification Challenge}
