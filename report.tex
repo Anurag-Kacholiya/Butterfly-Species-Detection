@@ -275,13 +275,45 @@ R. Wightman, ``PyTorch Image Models (timm),'' GitHub, 2019. [Online]. Available:
 \section{Project Links and Resources}
 
 \begin{itemize}
-    \item \textbf{GitHub Repository:} \url{https://github.com/Anurag-Kacholiya/Butterfly-Species-Detection}
+    \item \textbf{Live Project (Streamlit Deployed) :} \url{https://srushtipekamwar-smai-assignment-3-app-dqqu7l.streamlit.app/}
+    \item \textbf{GitHub Repository:} \url{https://github.com/SrushtiPekamwar/SMAI_Assignment_3}
     \item \textbf{Hugging Face Model Hub:} \url{https://huggingface.co/Anurag29104/butterfly-classifier}
-    \item \textbf{Kaggle Notebook:} \url{https://www.kaggle.com/code/anuragkacholiya/01-efficientnet-finetuning-final}
     \item \textbf{CLIP Zero-Shot model:} \url{https://huggingface.co/openai/clip-vit-base-patch32}
     \item \textbf{EfficientNet-B0 via timm:} \url{https://github.com/huggingface/pytorch-image-models}
 \end{itemize}
 
 \textbf{Caching strategy:} Wikipedia summaries, IUCN conservation status mappings, and biological fun facts are pre-fetched and stored in \texttt{data/species\_metadata.json} so that the Streamlit app serves rich species information without runtime HTTP requests.
+
+\section{Frontend Screenshots}
+
+The following screenshots demonstrate the user interface and functionality of the deployed Streamlit application.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Landing.png}
+    \caption{Landing page of the application, ready for user image upload.}
+    \label{fig:ss_landing}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Model_selection.png}
+    \caption{Model selection dropdown in the sidebar, allowing the user to choose between the Phase 1, Phase 2, and Full Fine-Tuned models.}
+    \label{fig:ss_model_selection}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Result_Table.png}
+    \caption{Top-3 probability results table displayed immediately after inference.}
+    \label{fig:ss_result_table}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{Prediction_with_wiki_info.png}
+    \caption{Dynamic layout showing the model's prediction along with the fetched Wikipedia summary, IUCN status and 3 fun facts.}
+    \label{fig:ss_prediction}
+\end{figure}
 
 \end{document}
