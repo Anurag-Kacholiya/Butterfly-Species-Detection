@@ -37,39 +37,39 @@ HF_BASE = f"https://huggingface.co/{HF_REPO}/resolve/main"
 
 # Model registry: display label → metadata
 MODEL_REGISTRY = {
-    "🔬 A — Linear Probe (~89.8%)": {
+    "🔬 A — Linear Probe (92.20%)": {
         "type":       "pytorch",
         "hf_file":    "efficientnet_linear_probe.pth",
-        "top1":       "~89.80%",
+        "top1":       "92.20%",
         "top3":       "~95.50%",
         "macro_f1":   "~89.50%",
-        "params":     "0.13M trained",
+        "params":     "1.3K trained",
         "epochs":     "15",
         "note":       None,
     },
-    "⭐ B — Last Block Fine-Tune (96.6%) [Default]": {
+    "⭐ B — Last Block Fine-Tune (97.00%) [Default]": {
         "type":       "pytorch",
         "hf_file":    "efficientnet_lastblock_ft.pth",
-        "top1":       "96.60%",
-        "top3":       "99.40%",
-        "macro_f1":   "96.45%",
-        "params":     "1.27M trained",
+        "top1":       "97.00%",
+        "top3":       "99.20%",
+        "macro_f1":   "96.92%",
+        "params":     "2.9M trained",
         "epochs":     "15",
         "note":       None,
     },
-    "🔥 C — Full Fine-Tune (96.6%)": {
+    "🔥 C — Full Fine-Tune (97.00%)": {
         "type":       "pytorch",
         "hf_file":    "efficientnet_full_ft.pth",
-        "top1":       "96.60%",
+        "top1":       "97.00%",
         "top3":       "99.20%",
-        "macro_f1":   "96.53%",
-        "params":     "4.14M trained",
+        "macro_f1":   "96.87%",
+        "params":     "5.3M trained",
         "epochs":     "15",
         "note":       None,
     },
 }
 
-DEFAULT_MODEL = "⭐ B — Last Block Fine-Tune (96.6%) [Default]"
+DEFAULT_MODEL = "⭐ B — Last Block Fine-Tune (97.00%) [Default]"
 
 # ── Paths ───────────────────────────────────────────────────────────────────────
 BASE_DIR     = Path(__file__).parent
@@ -499,11 +499,11 @@ with st.expander("📈 Full Ablation Study Results", expanded=False):
             "C — Full Fine-Tune",
             "D — CLIP Zero-Shot (Ensemble)",
         ],
-        "Trainable Params": ["0", "0.13M", "1.27M", "4.14M", "0 / Frozen"],
+        "Trainable Params": ["0", "1.3k", "2.9M", "5.3M", "0 / Frozen"],
         "Epochs":           ["0", "15", "15", "15", "0"],
-        "Test Top-1":       ["97.60%", "~89.80%", "96.60%", "96.60%", "30.80%"],
-        "Test Top-3":       ["99.60%", "~95.50%", "99.40%", "99.20%", "44.20%"],
-        "Macro F1":         ["~97.50%", "~89.50%", "96.45%", "96.53%", "24.57%"],
+        "Test Top-1":       ["97.60%", "92.20%", "97.00%", "97.00%", "30.80%"],
+        "Test Top-3":       ["99.60%", "~95.50%", "99.20%", "99.20%", "44.20%"],
+        "Macro F1":         ["~97.50%", "~89.50%", "96.92%", "96.87%", "24.57%"],
         "HF Weights":       ["n/a (Keras)", "efficientnet_linear_probe.pth",
                              "efficientnet_lastblock_ft.pth", "efficientnet_full_ft.pth",
                              "openai/clip-vit-base-patch32"],
