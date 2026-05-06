@@ -178,10 +178,6 @@ CLIP Zero-Shot & 0 & 30.80\% & 44.20\% & 24.57\% \\
 
 \section{Interpretability Analysis}
 
-\subsection{Grad-CAM Heatmaps}
-
-Grad-CAM~\cite{selvaraju2017gradcam} back-propagates the gradient of the predicted class score through the last convolutional layer (\texttt{blocks[-1]}) to produce a spatial activation map highlighting the regions most influential to the prediction.
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{gradcam_visualisation.png}
@@ -189,19 +185,15 @@ Grad-CAM~\cite{selvaraju2017gradcam} back-propagates the gradient of the predict
     \label{fig:gradcam}
 \end{figure}
 
+\subsection{Grad-CAM Heatmaps}
+
+Grad-CAM~\cite{selvaraju2017gradcam} back-propagates the gradient of the predicted class score through the last convolutional layer (\texttt{blocks[-1]}) to produce a spatial activation map highlighting the regions most influential to the prediction.
+
 Figure~\ref{fig:gradcam} shows four correct and four incorrect predictions. In all cases, activation focuses on \textbf{wing patterns, submarginal bands, ocelli, and the thorax} — the exact biological features used by human taxonomists. The background (leaves, stems, soil) receives near-zero activation, confirming the model has not learned habitat spurious correlations.
 
 Even in failure cases, the model looks at the right anatomical region. Errors are biologically plausible (mimicry pairs), not random. This ``fail gracefully'' property is critical for a field-identification tool.
 
 \subsection{Layer-wise Grad-CAM}
-
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{gradcam_layerwise.png}
-    \caption{Layer-wise Grad-CAM at blocks[1] (early), blocks[4] (middle), and blocks[6] (late/fine-tuned) for the same input images. Heatmaps progress from broad whole-image activations to tight, species-specific wing-feature highlights.}
-    \label{fig:gradcam_layerwise}
-\end{figure}
 
 To demonstrate how attention evolves across network depth, we extract Grad-CAM heatmaps at three representative blocks and visualise them for the same input images (Figure~\ref{fig:gradcam_layerwise}):
 
@@ -224,6 +216,13 @@ To demonstrate how attention evolves across network depth, we extract Grad-CAM h
 
 \textbf{blocks[4] (Middle):} Attention begins to narrow towards the butterfly body and wings. Background suppression becomes apparent. The model is now detecting mid-level features: the overall wing outline, broad colour regions, and approximate body shape. The spatial attention is more selective than in the early block but is not yet focused on the fine-grained cues that distinguish species.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{gradcam_layerwise.png}
+    \caption{Layer-wise Grad-CAM at blocks[1] (early), blocks[4] (middle), and blocks[6] (late/fine-tuned) for the same input images. Heatmaps progress from broad whole-image activations to tight, species-specific wing-feature highlights.}
+    \label{fig:gradcam_layerwise}
+\end{figure}
+
 \textbf{blocks[6] (Late --- fine-tuned):} Activation is tightly concentrated on fine-grained discriminative features --- specific wing bands, colour patches, eyespots, and margin patterns. This is precisely the block we unlocked during Phase 2 fine-tuning; its representations have been adapted from ImageNet semantics to butterfly-specific diagnostic anatomy.
 
 \textbf{Why this matters:} The layer-wise progression provides strong empirical evidence that fine-tuning only \texttt{blocks[6]} is sufficient. Blocks 0--5 already encode a rich feature pyramid that transfers well to the butterfly domain. By unlocking only the final block, we ``sharpen the lens'' for species-level discrimination without destabilising the foundational visual vocabulary learned from ImageNet. This is why Strategy B (2.9~M trainable params) matches Strategy C (5.3~M trainable params) in final test accuracy.
@@ -244,13 +243,6 @@ The UMAP shows \textbf{compact, non-overlapping islands per species}. Biological
 
 \section{Confusion Analysis}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\linewidth]{effnet_confusion_matrix.png}
-    \caption{Confusion matrix restricted to the 20 most error-prone species. Confusions cluster around known mimicry pairs (e.g., Monarch/Viceroy, Adonis/Chalk Hill Blue), not across unrelated taxa.}
-    \label{fig:conf_matrix}
-\end{figure}
-
 The final test metrics for Strategy B are:
 \begin{itemize}
     \item \textbf{Top-1 Accuracy:} 97.0\%
@@ -259,6 +251,13 @@ The final test metrics for Strategy B are:
     \item \textbf{Macro Recall:} 97.0\%
     \item \textbf{Macro F1-score:} 96.92\%
 \end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{effnet_confusion_matrix.png}
+    \caption{Confusion matrix restricted to the 20 most error-prone species. Confusions cluster around known mimicry pairs (e.g., Monarch/Viceroy, Adonis/Chalk Hill Blue), not across unrelated taxa.}
+    \label{fig:conf_matrix}
+\end{figure}
 
 The confusion matrix (Figure~\ref{fig:conf_matrix}) restricts to the 20 highest-error species. All confusions occur between species with documented mimicry relationships or extreme morphological similarity. There are no cross-family errors (e.g., a Swallowtail mistaken for a Lycaenid), confirming that residual errors are irreducible without higher-resolution imaging.
 
